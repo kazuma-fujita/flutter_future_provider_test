@@ -24,11 +24,12 @@ void main() {
     ProviderScope(
       overrides: [
         listProvider.overrideWithValue(
-          const AsyncValue.data([
-            Entity(id: 1, title: 'First title'),
-            Entity(id: 2, title: 'Second title'),
-            Entity(id: 3, title: 'Third title'),
-          ]),
+          // const AsyncValue.data([
+          //   Entity(id: 1, title: 'First title'),
+          //   Entity(id: 2, title: 'Second title'),
+          //   Entity(id: 3, title: 'Third title'),
+          // ]),
+          AsyncValue.error(Exception('Error message.')),
         )
       ],
       child: MyApp(),

@@ -6,34 +6,73 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_future_provider_test/main.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'fake_repository.dart';
-
 void main() {
-  testWidgets('Testing view', (WidgetTester tester) async {
+  testWidgets('Testing loading view.', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          repositoryProvider.overrideWithProvider(
-            Provider((ref) => FakeRepository()),
+          listProvider.overrideWithValue(
+            const AsyncValue.loading(),
           ),
         ],
-        child: MaterialApp(
-          home: View(),
-        ),
+        child: MaterialApp(home: View()),
       ),
     );
     // The first frame is a loading state.
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    // Re-render. listProvider should have finished fetching the list by now.
-    await tester.pump();
-    // Rendered one item with the data returned by FakeRepository.
-    expect(tester.widgetList(find.byType(Entity)), [
-      isA<Entity>()
-          .having((Entity entity) => entity.id, 'id', 1)
-          .having((Entity entity) => entity.title, 'title', 'First title'),
-    ]);
-    // No-longer loading
+  });
+
+  testWidgets('Testing empty list view.', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          listProvider.overrideWithValue(
+            const AsyncValue.data([]),
+          ),
+        ],
+        child: MaterialApp(home: View()),
+      ),
+    );
+
     expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('List is empty.'), findsOneWidget);
+  });
+
+  testWidgets('Testing list view.', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          listProvider.overrideWithValue(
+            const AsyncValue.data([
+              Entity(id: 1, title: 'First title'),
+            ]),
+          ),
+        ],
+        child: MaterialApp(home: View()),
+      ),
+    );
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('First title'), findsOneWidget);
+  });
+
+  testWidgets('Testing error view.', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          listProvider.overrideWithValue(
+            AsyncValue.error(Exception('Error message')),
+          ),
+        ],
+        child: MaterialApp(home: View()),
+      ),
+    );
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('Exception: Error message'), findsOneWidget);
   });
 }

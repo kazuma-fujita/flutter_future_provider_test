@@ -24,9 +24,10 @@ void main() {
         const AsyncValue<List<Entity>>.loading(),
       );
 
-      /// Wait for the request to finish
+      // Wait for the request to finish
       await Future<void>.value();
 
+      // Exposes the data fetched
       expect(container.read(listProvider).data!.value, [
         isA<Entity>()
             .having((entity) => entity.id, 'id', 1)
@@ -34,7 +35,6 @@ void main() {
       ]);
     });
 
-    // Exposes the data fetched
     test('Override AsyncValue.data', () async {
       final container = ProviderContainer(
         overrides: [
@@ -48,6 +48,7 @@ void main() {
         ],
       );
 
+      // Exposes the data fetched
       expect(container.read(listProvider).data!.value, [
         isA<Entity>()
             .having((entity) => entity.id, 'id', 1)
